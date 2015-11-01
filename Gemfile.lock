@@ -2,10 +2,10 @@ PATH
   remote: .
   specs:
     jirastorm (0.1.0)
-      jira-ruby
-      mixlib-config
-      rest-client
-      thor
+      jira-ruby (>= 0.1.16)
+      mixlib-config (~> 2.2)
+      rest-client (~> 1.8)
+      thor (~> 0.19)
 
 GEM
   remote: https://rubygems.org/
@@ -21,7 +21,6 @@ GEM
       parser (~> 2.2)
     domain_name (0.5.25)
       unf (>= 0.0.5, < 1.0.0)
-    highline (1.7.8)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     i18n (0.7.0)
@@ -63,7 +62,6 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.6)
-  highline
   jirastorm!
   rake
   rubocop

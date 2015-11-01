@@ -10,10 +10,14 @@ module JiraStorm
       :type => :string,
       :default => ENV['JIRASTORM_CONF'] || File.expand_path('~/.jirastorm.rb'),
       :desc => 'The path to a configuration file.'
+    class_option :jira_issue_limit,
+      :type => :numeric,
+      :default => ENV['JIRA_ISSUE_LIMIT'],
+      :desc => 'The maximum number of JIRA issues to sync.'
     class_option :jira_url,
       :type => :string,
       :default => ENV['JIRA_URL'],
-      :desc => "The URL of your JIRA instance. This should be the base url to your JIRA instance's API."
+      :desc => "The URL of your JIRA instance."
     class_option :jira_username,
       :type => :string,
       :default => ENV['JIRA_USERNAME'],
@@ -41,7 +45,7 @@ module JiraStorm
     class_option :storm_name,
       :type => :string,
       :default => ENV['STORM_NAME'],
-      :desc => "The name of the Storm to sync to. If this Storm doesn't exist and create_storm is set to true, a Storm with this name will be created."
+      :desc => "The name to give the newly created Storm."
     class_option :create_storm,
       :type => :boolean,
       :default => true,
@@ -52,21 +56,21 @@ module JiraStorm
       :desc => 'Remove all Storm ideas before syncing.'
     class_option :log_level,
       :type => :string,
-      :default => 'info',
+      :default => ENV['JIRASTORM_LOG_LEVEL'] || 'info',
       :desc => 'The log level to output.'
     class_option :log_destination,
       :type => :string,
+      :default => ENV['JIRASTORM_LOG_DESTINATION'],
       :desc => 'A file to log to.'
 
     desc "sync <jira_query>", "Syncs the issues returned by <jira_query> to Stormboard."
     long_desc <<-LONGDESC
       Runs the <jira_query> JQL and syncs the issues to Stormboard. Note that
-      the search is already confined to issues in JIRA.
+      the search is already confined to 'issues' in JIRA.
 
-      If no Storm is specified using the --storm_id option or --storm_name
-      option a Storm will be created for you. If you specify a --storm_name but
-      no Storm with that name is found, one with that name will be created. This
-      behavior is configurable via the --create_storm option.
+      If no Storm is specified using the --storm_id option a Storm will be
+      created for you. If you'd like to join an existing Storm, you must provide
+      the --storm_id and --storm_key options.
 
       You must supply the --stormboard_key, --jira_url, --jira_username, and
       --jira_password parameters, or these must be configured in your
@@ -81,20 +85,21 @@ module JiraStorm
     def sync(jira_query)
       load_config
       issues = JiraStorm::Jira::Issues.find(jira_query)
-      JiraStorm.logger.info "Query returned #{issues.count} issues from JIRA"
+      JiraStorm.log.info "Query returned #{issues.count} issues from JIRA"
       storm = JiraStorm::Stormboard::Storm.load
-      JiraStorm.logger.info "Found #{storm.ideas.count} ideas in Storm ##{JiraStorm[:storm_id]}"
+      JiraStorm.log.info "Found #{storm.ideas.count} ideas in Storm ##{JiraStorm[:storm_id]}"
+      JiraStorm.log.debug "The clean_storm option is set, purging all existing Ideas from Storm ##{JiraStorm[:storm_id]}."
       storm.purge_ideas if JiraStorm[:clean_storm]
       JiraStorm.sync(issues, storm)
+      JiraStorm.log.info "Sync complete! Access your storm at https://stormboard.com/storm/#{JiraStorm[:storm_id]}"
     end
 
     no_commands do
-      # Command line arguments are given precedence for configuration, followed
-      # by environment variables, then configuration file parameters.
-      #
       def load_config
         required = [
           :jira_url,
+          :jira_username,
+          :jira_password,
           :stormboard_url,
           :stormboard_key
         ]
@@ -107,7 +112,13 @@ module JiraStorm
 
         not_supplied = required - JiraStorm.keys
 
-        fail ArgumentError, "Missing required configuration options: #{not_supplied.join(', ')}." unless not_supplied.empty?
+        unless not_supplied.empty?
+          puts "ERROR: Missing required configuration options: #{not_supplied.join(', ')}.\n\n"
+          help
+          exit 1
+        end
+
+        return
       end
     end
   end

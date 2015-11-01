@@ -20,8 +20,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rubocop'
 
-  spec.add_runtime_dependency 'thor'
-  spec.add_runtime_dependency 'mixlib-config'
-  spec.add_runtime_dependency 'jira-ruby'
-  spec.add_runtime_dependency 'rest-client'
+  spec.add_runtime_dependency 'thor', '~> 0.19'
+  spec.add_runtime_dependency 'mixlib-config', '~> 2.2'
+  spec.add_runtime_dependency 'jira-ruby', '>= 0.1.16'
+  spec.add_runtime_dependency 'rest-client', '~> 1.8'
 end

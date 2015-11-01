@@ -7,7 +7,7 @@ module JiraStorm
 
       def self.create(storm, content)
         response = Stormboard.post 'ideas', stormid: storm, data: content
-        JiraStorm.logger.debug "Created Idea ##{response['id']} in Storm ##{storm}"
+        JiraStorm.log.debug "Created Idea ##{response['id']} in Storm ##{storm}"
         new(storm: storm, id: response['id'], data: content)
       end
 
@@ -19,7 +19,7 @@ module JiraStorm
       end
 
       def delete!
-        JiraStorm.logger.debug "Deleting Idea: #{id} from Storm ##{storm}"
+        JiraStorm.log.debug "Deleting Idea: #{id} from Storm ##{storm}"
         Stormboard.delete "ideas/#{id}"
         return
       end

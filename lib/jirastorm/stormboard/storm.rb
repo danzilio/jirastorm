@@ -7,15 +7,15 @@ module JiraStorm
 
       def self.load
         if JiraStorm[:storm_id] && JiraStorm[:storm_key]
-          JiraStorm.logger.debug "Joining existing Storm ##{JiraStorm[:storm_id]}"
+          JiraStorm.log.debug "Joining existing Storm ##{JiraStorm[:storm_id]}"
           Stormboard.post 'storms/join', stormid: JiraStorm[:storm_id], storm_key: JiraStorm[:storm_key]
         elsif JiraStorm[:create_storm] && !JiraStorm[:storm_id]
           title = JiraStorm[:storm_name] || 'JiraStorm'
-          JiraStorm.logger.debug "Creating Storm with name #{title}"
+          JiraStorm.log.debug "Creating Storm with name #{title}"
           response = Stormboard.post 'storms', title: title
           JiraStorm[:storm_id] = response['id']
-          JiraStorm.logger.debug "Created Storm with name #{title} and ID ##{JiraStorm[:storm_id]}"
-          JiraStorm.logger.info "Newly created Storm available at: https://stormboard.com/storm/#{JiraStorm[:storm_id]}"
+          JiraStorm.log.debug "Created Storm with name #{title} and ID ##{JiraStorm[:storm_id]}"
+          JiraStorm.log.info "Newly created Storm available at: https://stormboard.com/storm/#{JiraStorm[:storm_id]}"
         end
 
         storm = Stormboard.get "storms/#{JiraStorm[:storm_id]}"

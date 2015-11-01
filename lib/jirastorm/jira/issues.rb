@@ -3,7 +3,8 @@ require 'jirastorm/jira'
 module JiraStorm
   module Jira
     class Issues
-      attr_reader :data
+      attr_reader :key, :id, :description, :summary
+
       def self.find(query)
         issues = []
         JiraStorm::Jira.jira_client.Issue.jql(query).each do |i|
@@ -13,16 +14,15 @@ module JiraStorm
       end
 
       def initialize(**data)
-        @data = data
-      end
-
-      def method_missing(method_symbol)
-        data[method_symbol]
+        @id = data[:id]
+        @key = data[:key]
+        @description = data[:description]
+        @summary = data[:summary]
       end
 
       def to_s
-        fields = [data[:key], data[:summary]]
-        fields << data[:description] if data[:description]
+        fields = [key, summary]
+        fields << description if description
 
         fields.join("\n")
       end
