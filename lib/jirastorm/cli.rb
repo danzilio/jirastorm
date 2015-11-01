@@ -113,7 +113,7 @@ module JiraStorm
         not_supplied = required - JiraStorm.keys
 
         unless not_supplied.empty?
-          puts "ERROR: Missing required configuration options: #{not_supplied.join(', ')}.\n\n"
+          JiraStorm.log.fatal "Missing required configuration options: #{not_supplied.join(', ')}."
           help
           exit 1
         end
