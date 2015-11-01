@@ -1,23 +1,27 @@
 require 'thor'
+require 'yaml'
+require 'jirastorm'
+require 'jirastorm/jira'
+require 'jirastorm/stormboard'
 
 module JiraStorm
   class CLI < Thor
     class_option :config_file,
       :type => :string,
-      :default => ENV['CONFIG_FILE'] || '/etc/jirastorm/config.yaml',
+      :default => ENV['JIRASTORM_CONF'] || File.expand_path('~/.jirastorm.rb'),
       :desc => 'The path to a configuration file.'
     class_option :jira_url,
       :type => :string,
       :default => ENV['JIRA_URL'],
       :desc => "The URL of your JIRA instance. This should be the base url to your JIRA instance's API."
-    class_option :jira_key,
+    class_option :jira_username,
       :type => :string,
-      :default => ENV['JIRA_KEY'],
-      :desc => 'The JIRA API key.'
-    class_option :jira_secret,
+      :default => ENV['JIRA_USERNAME'],
+      :desc => 'Your JIRA username.'
+    class_option :jira_password,
       :type => :string,
-      :default => ENV['JIRA_SECRET'],
-      :desc => 'The JIRA API secret.'
+      :default => ENV['JIRA_PASSWORD'],
+      :desc => 'Your JIRA password.'
     class_option :stormboard_url,
       :type => :string,
       :default => ENV['STORMBOARD_URL'] || 'https://api.stormboard.com',
@@ -29,11 +33,11 @@ module JiraStorm
     class_option :storm_id,
       :type => :numeric,
       :default => ENV['STORM_ID'],
-      :desc => "The Storm ID for the storm you'd like to sync to. This Storm must exist."
+      :desc => "The Storm ID for the storm you'd like to sync to."
     class_option :storm_key,
       :type => :string,
       :default => ENV['STORM_KEY'],
-      :desc => "The Storm key for the Storm you'd like to sync to. This Storm must exist."
+      :desc => "The key of a Storm to join."
     class_option :storm_name,
       :type => :string,
       :default => ENV['STORM_NAME'],
@@ -42,55 +46,69 @@ module JiraStorm
       :type => :boolean,
       :default => true,
       :desc => 'Create a new storm if one is not specified or found.'
+    class_option :clean_storm,
+      :type => :boolean,
+      :default => false,
+      :desc => 'Remove all Storm ideas before syncing.'
+    class_option :log_level,
+      :type => :string,
+      :default => 'info',
+      :desc => 'The log level to output.'
+    class_option :log_destination,
+      :type => :string,
+      :desc => 'A file to log to.'
 
     desc "sync <jira_query>", "Syncs the issues returned by <jira_query> to Stormboard."
     long_desc <<-LONGDESC
       Runs the <jira_query> JQL and syncs the issues to Stormboard. Note that
       the search is already confined to issues in JIRA.
 
-      If no Storm is specified using the --storm_id and --storm_key options, or
-      with the --storm_name option, a Storm will be created for you. If you
-      specify a --storm_name but no Storm with that name is found, one with that
-      name will be created. This behavior is configurable via the --create_storm
-      option.
+      If no Storm is specified using the --storm_id option or --storm_name
+      option a Storm will be created for you. If you specify a --storm_name but
+      no Storm with that name is found, one with that name will be created. This
+      behavior is configurable via the --create_storm option.
 
-      You must supply the --stormboard_key, --jira_url, --jira_key, and
-      --jira_secret parameters, or these must be configured in your
+      You must supply the --stormboard_key, --jira_url, --jira_username, and
+      --jira_password parameters, or these must be configured in your
       configuration file and specified with the --config_file option.
       Alternatively, you can specify values for these options using environment
-      variables by setting STORMBOARD_KEY, JIRA_URL, JIRA_KEY, and JIRA_SECRET.
+      variables by setting STORMBOARD_KEY, JIRA_URL, JIRA_USERNAME, and
+      JIRA_PASSWORD.
 
       Command line arguments are given precedence for configuration, followed by
       environment variables, then configuration file parameters.
     LONGDESC
     def sync(jira_query)
-      config = get_config(options)
+      load_config
+      issues = JiraStorm::Jira::Issues.find(jira_query)
+      JiraStorm.logger.info "Query returned #{issues.count} issues from JIRA"
+      storm = JiraStorm::Stormboard::Storm.load
+      JiraStorm.logger.info "Found #{storm.ideas.count} ideas in Storm ##{JiraStorm[:storm_id]}"
+      storm.purge_ideas if JiraStorm[:clean_storm]
+      JiraStorm.sync(issues, storm)
     end
 
-    # Command line arguments are given precedence for configuration, followed by
-    # environment variables, then configuration file parameters.
-    #
-    def get_config(options)
-      environment_variables = %w[
-        STORMBOARD_URL,
-        STORMBOARD_KEY,
-        JIRA_URL,
-        JIRA_KEY,
-        JIRA_SECRET,
-        STORM_ID,
-        STORM_KEY,
-        STORM_NAME,
-      ]
+    no_commands do
+      # Command line arguments are given precedence for configuration, followed
+      # by environment variables, then configuration file parameters.
+      #
+      def load_config
+        required = [
+          :jira_url,
+          :stormboard_url,
+          :stormboard_key
+        ]
 
-      env_config = {}
+        JiraStorm.from_file(options[:config_file]) if options[:config_file] && File.exist?(options[:config_file])
 
-      environment_variables.each do |v|
-        env_config[v.downcase.to_sym] = ENV[v] if ENV[v]
+        options.each do |o,v|
+          JiraStorm.send("#{o}=", v)
+        end
+
+        not_supplied = required - JiraStorm.keys
+
+        fail ArgumentError, "Missing required configuration options: #{not_supplied.join(', ')}." unless not_supplied.empty?
       end
-
-      config_file = YAML.load_file(options[:config_file]) if File.exist?(options[:config_file]) || {}
-
-      config_file.merge(env_config).merge(options)
     end
   end
 end

@@ -21,4 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop'
 
   spec.add_runtime_dependency 'thor'
+  spec.add_runtime_dependency 'mixlib-config'
+  spec.add_runtime_dependency 'jira-ruby'
+  spec.add_runtime_dependency 'rest-client'
 end
