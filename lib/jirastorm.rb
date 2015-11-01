@@ -29,12 +29,6 @@ module JiraStorm
 
   def self.sync(jira_issues, storm)
     storm_ideas = storm.ideas.map(&:content)
-
-    if (limit = JiraStorm[:jira_issue_limit])
-      jira_issues = jira_issues.first(limit)
-      log.info "JIRA Issue limit set to #{limit}, only syncing the first #{limit} issues."
-    end
-
     jira_issues.each do |issue|
       unless storm_ideas.include?(issue.to_s)
         idea = storm.new_idea(issue.to_s)

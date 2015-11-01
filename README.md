@@ -72,7 +72,7 @@ The `jirastorm sync` command accepts a JQL query as an argument. The JIRA issues
 jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC'
 ```
 
-The above example would sync all unresolved tickets in the SYS project in the descending order in which they were last updated. By default JIRA will only return the first 50 issues of a query. You can limit the number of tickets that get synced to Stormboard by using the `jira-issue-limit` option:
+The above example would sync all unresolved tickets in the SYS project in the descending order in which they were last updated. By default JIRA will only return the first 50 issues of a query. You can increase or decrease the maximum number of tickets that get synced to Stormboard by using the `jira-issue-limit` option:
 
 ```
 jirastorm sync --jira-issue-limit 10 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC'
