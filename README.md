@@ -102,3 +102,6 @@ jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate D
 ```
 
 JiraStorm will output the Storm URL after it finishes syncing.
+
+## Requirements
+This gem is compatible with Ruby versions >= 2.0.0
