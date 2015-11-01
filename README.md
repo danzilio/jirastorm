@@ -66,7 +66,7 @@ storm_id '90210'
 ```
 
 ## Usage
-The `jirastorm sync` command accepts a JQL query as an argument. The JIRA issues returned by that JQL query will be synced to Stormboard.
+The `jirastorm sync` command accepts a JQL query as an argument. The JIRA issues returned by that JQL query will be synced to Stormboard. This example assumes all configuration is done in the configuration file:
 
 ```
 jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC'
@@ -77,3 +77,28 @@ The above example would sync all unresolved tickets in the SYS project in the de
 ```
 jirastorm sync --jira-issue-limit 10 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC'
 ```
+
+Here's the above example with the configuration options defined at the command line:
+
+```
+jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC' \
+   --jira-url https://jira.example.com \
+   --jira-username foouser \
+   --jira-password supersecretpassword \
+   --stormboard-key supersecretstormboardkey \
+   --storm-id 90120 \
+   --jira-issue-limit 10 \
+```
+
+If you don't specify a Storm ID, JiraStorm will create a new Storm for you. You can specify the name of the Storm using the `storm-name` option:
+
+```
+jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate DESC' \
+   --jira-url https://jira.example.com \
+   --jira-username foouser \
+   --jira-password supersecretpassword \
+   --stormboard-key supersecretstormboardkey \
+   --storm-name 'My JIRA Issue Storm!'
+```
+
+JiraStorm will output the Storm URL after it finishes syncing.
