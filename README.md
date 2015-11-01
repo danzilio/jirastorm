@@ -12,7 +12,7 @@ gem install jirastorm --source https://artifactory.roving.com/gems
 There are a number of ways to configure JiraStorm. You can pass configuration options to the command line, define them as environment variables, or place them in a configuration file, or any combination thereof.
 
 ### Options
-| CLI Options | Configuration Option | Environment Variable |
+| CLI Options | Config File Parameter | Environment Variable |
 | ------------- | -------------------- | -------------------- |
 | config-file | | JIRASTORM_CONF |
 | jira-issue-limit | jira_issue_limit | JIRA_ISSUE_LIMIT |
