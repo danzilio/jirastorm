@@ -44,18 +44,6 @@ module JiraStorm
         ideas = Stormboard.get("storms/#{id}/ideas")['ideas']
         @ideas = ideas.map { |i| JiraStorm::Stormboard::Idea.new(id: i['id'], content: i['data']['text'], color: i['color'], storm: self.id) }
       end
-
-      def to_h
-        {
-          id: id,
-          title: title,
-          ideas: ideas
-        }
-      end
-
-      def to_s
-        to_h.to_s
-      end
     end
   end
 end

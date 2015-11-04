@@ -2,10 +2,20 @@
 A utility to sync JIRA issues to Stormboard.
 
 ## Installation
-This gem isn't available on RubGems yet, so you'll need to install it from Artifactory:
+You can install this from RubyGems:
 
 ```
-gem install jirastorm --source https://artifactory.roving.com/gems
+gem install jirastorm
+```
+
+You can also install from source:
+
+```
+git clone https://github.com/danzilio/jirastorm
+cd jirastorm/
+bundle install
+bundle exec gem build jirastorm.gemspec
+gem install jirastorm-0.1.0.gem
 ```
 
 ## Configuration
@@ -104,4 +114,15 @@ jirastorm sync 'project = SYS AND resolution = Unresolved ORDER BY updatedDate D
 JiraStorm will output the Storm URL after it finishes syncing.
 
 ## Requirements
-This gem is compatible with Ruby versions >= 2.0.0
+This gem is compatible with Ruby versions `>= 2.0.0`
+
+## Contributing
+1. Fork this repo
+2. Create a feature branch
+3. Write a failing test
+4. Write the code to make that test pass
+5. Refactor your new code
+6. Document your changes
+7. Submit a pull request
+
+If you need help with any of these steps, please don't hesitate to ask :)

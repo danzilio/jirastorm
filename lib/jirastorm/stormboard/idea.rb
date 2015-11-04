@@ -23,18 +23,6 @@ module JiraStorm
         Stormboard.delete "ideas/#{id}"
         return
       end
-
-      def to_h
-        {
-          id: id,
-          content: content,
-          color: color
-        }
-      end
-
-      def to_s
-        to_h.to_s
-      end
     end
   end
 end

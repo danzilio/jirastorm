@@ -11,6 +11,7 @@ module JiraStorm
         JiraStorm::Jira.jira_client.Issue.jql(query, {max_results: JiraStorm[:jira_issue_limit]}).each do |i|
           issues << self.new(key: i.key, summary: i.summary, description: i.description)
         end
+        JiraStorm.log.info "Query returned #{issues.count} issues from JIRA"
         issues
       end
 

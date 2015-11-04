@@ -5,10 +5,10 @@ Gem::Specification.new do |spec|
   spec.name          = 'jirastorm'
   spec.version       = '0.1.0'
   spec.authors       = ['David Danzilio', 'Jim Cuff']
-  spec.email         = ['david@danzil.io']
+  spec.email         = ['david@danzilio.net']
   spec.summary       = 'A utility to sync issues between JIRA and Stormboard.'
   spec.description   = 'Syncs issues between JIRA and Stormboard.'
-  spec.homepage      = 'http://github.com/ddanzilio/jirastorm'
+  spec.homepage      = 'http://github.com/danzilio/jirastorm'
   spec.license       = 'Apache 2'
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'thor', '~> 0.19'
   spec.add_runtime_dependency 'mixlib-config', '~> 2.2'
-  spec.add_runtime_dependency 'jira-ruby', '>= 0.1.16'
+  spec.add_runtime_dependency 'jira-ruby', '~> 0.1.16'
   spec.add_runtime_dependency 'rest-client', '~> 1.8'
 end
